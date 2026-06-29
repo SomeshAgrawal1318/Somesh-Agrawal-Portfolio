@@ -1,4 +1,5 @@
 import AceTernityLogo from "@/components/logos/aceternity";
+import SlideShow from "@/components/slide-show";
 import { Button } from "@/components/ui/button";
 import { TypographyH3, TypographyP } from "@/components/ui/typography";
 import {
@@ -10,10 +11,12 @@ import {
   CircuitBoard,
   Cpu,
   DraftingCompass,
+  FileText,
   FlaskConical,
   Gamepad2,
   Image as ImageIcon,
   Link2,
+  Play,
   Presentation,
   Smartphone,
   Sparkles,
@@ -135,18 +138,30 @@ const Tags = ({ items }: { items: string[] }) => (
 );
 
 // One entry inside a "collection" modal (Robotics / Hardware / CAD / DS & ML).
+// `images` renders a real screenshot/chart carousel; `media` falls back to the
+// "coming soon" placeholders when there's nothing to show yet.
 const Entry = ({
   title,
   period,
   children,
   tags,
   media,
+  images,
+  repo,
+  report,
+  video,
+  logo,
 }: {
   title: string;
   period?: string;
   children: ReactNode;
   tags?: string[];
   media?: (keyof typeof PLACEHOLDERS)[];
+  images?: string[];
+  repo?: string;
+  report?: string;
+  video?: string;
+  logo?: string;
 }) => (
   <div className="mt-8 border-t border-border/60 pt-8 first:mt-0 first:border-0 first:pt-0">
     <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
@@ -159,7 +174,82 @@ const Entry = ({
       {children}
     </p>
     {tags && <Tags items={tags} />}
-    {media && <ComingSoon items={media} />}
+    {repo && (
+      <div className="mt-3">
+        <Link href={repo} target="_blank" rel="noopener">
+          <Button variant="outline" size="sm" className="flex items-center gap-2">
+            View code on GitHub
+            <ArrowUpRight className="h-4 w-4" />
+          </Button>
+        </Link>
+      </div>
+    )}
+    {report && <DocLink href={report} />}
+    {video && (
+      <>
+        <div className="mt-3 mb-1">
+          <Link href={`https://youtu.be/${video}`} target="_blank" rel="noopener">
+            <Button size="sm" className="flex items-center gap-2">
+              <Play className="h-4 w-4" />
+              Watch the video
+              <ArrowUpRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+        <YouTubeEmbed id={video} title={`${title} — video`} />
+      </>
+    )}
+    {logo && (
+      <div className="mt-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logo}
+          alt={title}
+          className="h-28 w-auto rounded-xl border border-border/60 bg-background/30 object-contain p-1.5"
+        />
+      </div>
+    )}
+    {images ? (
+      <SlideShow images={images} />
+    ) : media ? (
+      <ComingSoon items={media} />
+    ) : null}
+  </div>
+);
+
+// Responsive 16:9 YouTube embed for project demo reels.
+const YouTubeEmbed = ({ id, title }: { id: string; title: string }) => (
+  <div
+    className="my-4 overflow-hidden rounded-xl border border-border ring-1 ring-white/5"
+    style={{ position: "relative", paddingBottom: "56.25%", height: 0 }}
+  >
+    <iframe
+      src={`https://www.youtube-nocookie.com/embed/${id}`}
+      title={title}
+      loading="lazy"
+      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowFullScreen
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+    />
+  </div>
+);
+
+// "Read the report (PDF)" link button — opens a generated report in /public.
+const DocLink = ({
+  href,
+  label = "Read the report (PDF)",
+}: {
+  href: string;
+  label?: string;
+}) => (
+  <div className="my-4">
+    <Link href={href} target="_blank" rel="noopener">
+      <Button size="sm" variant="outline" className="flex items-center gap-2">
+        <FileText className="h-4 w-4" />
+        {label}
+        <ArrowUpRight className="h-4 w-4" />
+      </Button>
+    </Link>
   </div>
 );
 
@@ -320,6 +410,7 @@ const PROJECT_SKILLS = {
   kotlin: text("Kotlin", "Kt"),
   android: text("Android", "And"),
   firestore: text("Cloud Firestore", "FS"),
+  retrofit: text("Retrofit", "Rf"),
   tmdb: text("TMDB API", "TMDB"),
   websockets: text("WebSockets", "WS"),
   vitest: text("Vitest", "Vi"),
@@ -350,6 +441,7 @@ const projects: Project[] = [
     id: "flickmatch",
     category: "Mobile · Real-time",
     title: "FlickMatch",
+    src: `${BASE_PATH}/flickmatch/cover.jpg`,
     accent: "#f43f5e",
     icon: <Smartphone />,
     skills: {
@@ -357,25 +449,90 @@ const projects: Project[] = [
       backend: [
         PROJECT_SKILLS.firebase,
         PROJECT_SKILLS.firestore,
+        PROJECT_SKILLS.retrofit,
         PROJECT_SKILLS.tmdb,
       ],
     },
-    // Web/mobile project — live & source links going up later.
-    live: "#",
     content: (
       <div>
         <TypographyP className="font-mono text-2xl text-center">
           {`Tinder-style group movie matching — swipe together, match in real time.`}
         </TypographyP>
         <TypographyP className="font-mono">
-          {`A real-time Android app where a friend group spins up a shared room, sets filters (genre, runtime, age rating, release year) and swipes through a synchronized, TMDB-powered movie queue together. When everyone swipes right on the same title, it surfaces as a group match — no more 40-minute "what do you want to watch" standoffs.`}
+          {`A real-time Android app where a friend group spins up a shared room, sets filters (genre, runtime, age rating, release year) and swipes through a synchronized, TMDB-powered movie queue together. When everyone in the room swipes right on the same title, it surfaces as a group match — no more 40-minute "what should we watch" standoffs. Built in Java on Android Studio as a six-person team project for SUTD's 50.001 (Information Systems & Programming).`}
         </TypographyP>
+
+        <div className="my-3 mb-6 flex justify-center">
+          <Link
+            href="https://youtu.be/dqReQDC4wZU"
+            target="_blank"
+            rel="noopener"
+          >
+            <Button size="sm" className="flex items-center gap-2">
+              <Play className="h-4 w-4" />
+              Watch the demo
+              <ArrowUpRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+        <YouTubeEmbed id="dqReQDC4wZU" title="FlickMatch — demo" />
+
+        <TypographyH3 className="my-4 mt-8">Get in — name, rooms, join</TypographyH3>
+        <p className="font-mono mb-2">
+          {`Anonymous sign-in drops you straight onto a name screen, then a homepage listing your rooms. Spin up a new room or join a friend's with a 6-character invite code.`}
+        </p>
+        <SlideShow images={[`${BASE_PATH}/flickmatch/board-main.png`]} />
+
+        <TypographyH3 className="my-4 mt-8">Set the vibe — room filters</TypographyH3>
+        <p className="font-mono mb-2">
+          {`The room creator picks genres and dials in max runtime, age ratings and a release-year range. Those filters scope the shared TMDB movie queue everyone in the room swipes through.`}
+        </p>
+        <SlideShow images={[`${BASE_PATH}/flickmatch/board-create.png`]} />
+
+        <TypographyH3 className="my-4 mt-8">
+          Match — lobby, swipe, watchlist
+        </TypographyH3>
+        <p className="font-mono mb-2">
+          {`From the lobby (share the code, see who's in) everyone starts swiping the same queue. Likes and matches sync live; matched movies land in a shared watchlist you can sort by match order, rating or popularity, and tick off as watched.`}
+        </p>
+        <SlideShow images={[`${BASE_PATH}/flickmatch/board-room.png`]} />
 
         <TypographyH3 className="my-4 mt-8">Real-time group sync</TypographyH3>
         <p className="font-mono mb-2">
-          {`Built on Firebase anonymous auth and Cloud Firestore listeners so every member's queue, swipes, watchlists, watched history and matches stay in lockstep live. Group match-detection logic resolves a match the moment the whole room agrees, with configurable filters scoping the shared TMDB queue.`}
+          {`Firebase anonymous auth plus Cloud Firestore listeners keep every member's queue, swipes, watchlists, watched history and matches in lockstep live — no manual refresh. Movie data is pulled from the TMDB API through Retrofit and cached into each room's queue.`}
         </p>
-        <ComingSoon items={["screens", "demo", "link"]} />
+
+        <TypographyH3 className="my-4 mt-8">How matching works</TypographyH3>
+        <p className="font-mono mb-2">
+          {`Group matching is a set intersection: each member's liked movies become a HashSet and the app keeps only titles liked by everyone (retainAll), short-circuiting as soon as no common match can remain. A final linear pass (isMovieMatchedByAll) re-checks a title across all members' swipe records before confirming, and a comparator sorts matches by rating or popularity so the strongest picks surface first.`}
+        </p>
+        <Tags
+          items={[
+            "Set intersection (HashSet)",
+            "Queue / LinkedList swipe order",
+            "HashMap lookups",
+            "Comparator sorting",
+          ]}
+        />
+
+        <TypographyH3 className="my-4 mt-8">Under the hood</TypographyH3>
+        <p className="font-mono mb-2">
+          {`Three Android activities — MainActivity (auth + room list), CreateRoomActivity (room setup) and RoomActivity (swipe stack + live match listener) — sit over a service layer of FirebaseHelper, TMDBHelper, MatchingHelper and a Retrofit client. The swipe deck runs on a Queue (LinkedList) for FIFO order with peek() look-ahead, while a HashMap maps room IDs to rooms for constant-time lookups during matching.`}
+        </p>
+        <Tags
+          items={[
+            "Java",
+            "Android Studio",
+            "Firebase Auth",
+            "Cloud Firestore",
+            "Retrofit",
+            "TMDB API",
+          ]}
+        />
+
+        <p className="mt-8 text-center font-mono text-sm text-muted-foreground">
+          {`Built by Team 46 — Alister, Michelle, Janani, Aarushi, Mahek & Somesh.`}
+        </p>
       </div>
     ),
   },
@@ -430,9 +587,106 @@ const projects: Project[] = [
     ),
   },
   {
+    id: "kookey",
+    category: "Design · Hardware Product",
+    title: "Kookey",
+    src: `${BASE_PATH}/kookey/cover.png`,
+    accent: "#38bdf8",
+    icon: <Cpu />,
+    skills: { frontend: [], backend: [] },
+    content: (
+      <div>
+        <TypographyP className="font-mono text-2xl text-center">
+          {`Seamless hostel access — a self-service kiosk + smart wristband that gets security guards out of the ID-checking business.`}
+        </TypographyP>
+        <TypographyP className="font-mono">
+          {`A Design Thinking & Innovation project at SUTD. We found that 92.3% of hostel entries go untapped — residents tailgate, and guards burn ~2 minutes per manual ID check (8–10 minutes escorting a student who forgot their card). Kookey replaces that friction with an automated self-service kiosk and an all-in-one NFC wristband, turning entry into a 30-second self-serve flow instead of a guard interruption.`}
+        </TypographyP>
+        <Tags
+          items={[
+            "Design Thinking",
+            "Fusion 360 CAD",
+            "3D printing",
+            "XIAO C6 (ESP32-C6)",
+            "NFC / RFID",
+            "Prototyping",
+          ]}
+        />
+
+        <div className="my-3 mb-6 flex justify-center">
+          <Link
+            href="https://www.youtube.com/watch?v=aCHEXbj2dUg"
+            target="_blank"
+            rel="noopener"
+          >
+            <Button size="sm" className="flex items-center gap-2">
+              <Play className="h-4 w-4" />
+              Watch the walkthrough
+              <ArrowUpRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+        <YouTubeEmbed id="aCHEXbj2dUg" title="Kookey — walkthrough" />
+
+        <TypographyH3 className="my-4 mt-8">The concept</TypographyH3>
+        <p className="font-mono mb-2">
+          {`Self-service kiosks sit at hostel entry/exit points so hostellers and contractors can issue their own temporary passes — no guard in the loop. The screen is mounted at 30° to kill glare, with a return receptacle and a dust-sealed housing refined across testing rounds.`}
+        </p>
+        <SlideShow
+          images={[
+            `${BASE_PATH}/kookey/render-pov.png`,
+            `${BASE_PATH}/kookey/render-corridor.png`,
+            `${BASE_PATH}/kookey/kiosk-cad.png`,
+          ]}
+        />
+
+        <TypographyH3 className="my-4 mt-8">The smart wristband</TypographyH3>
+        <p className="font-mono mb-2">
+          {`An all-in-one wearable carries the access credential: a Seeed XIAO C6 microcontroller (Wi-Fi + BLE), a 3.7V LiPo cell and an RFID/NFC tag inside a printed carriage. It went through several iterations — the material switched from rigid PETG to soft TPE for comfort, and the colourway from green/yellow to blue for at-a-glance distinguishability.`}
+        </p>
+        <SlideShow
+          images={[
+            `${BASE_PATH}/kookey/wristband-exploded.png`,
+            `${BASE_PATH}/kookey/proto-wristband.png`,
+            `${BASE_PATH}/kookey/wristband-final.png`,
+          ]}
+        />
+
+        <TypographyH3 className="my-4 mt-8">From sketch to 1:5 prototype</TypographyH3>
+        <p className="font-mono mb-2">
+          {`The kiosk evolved sketch → 3D CAD → a 1:10 cardboard study model → a 1:5 working prototype, each step driven by user-testing notes (screen glare, return-slot ergonomics, band comfort).`}
+        </p>
+        <SlideShow images={[`${BASE_PATH}/kookey/proto-cardboard.png`]} />
+
+        <TypographyH3 className="my-4 mt-8">Impact</TypographyH3>
+        <p className="font-mono mb-2">
+          {`User testing showed manual guard authentication can take up to ~2 minutes; Kookey's NFC flow averages 30 seconds — 83% faster. Guard interventions dropped ~80%, 8 of 10 daily card issues now resolve autonomously, and peak-hour entry bottlenecks ease.`}
+        </p>
+
+        <TypographyH3 className="my-4 mt-8">Full case study</TypographyH3>
+        <p className="font-mono mb-2">
+          {`The complete DTI deliverable — site analysis, user journey map, solution design and the prototyping/testing log (zoom in to read).`}
+        </p>
+        <SlideShow
+          images={[
+            `${BASE_PATH}/kookey/page1.png`,
+            `${BASE_PATH}/kookey/page2.png`,
+            `${BASE_PATH}/kookey/page3.png`,
+            `${BASE_PATH}/kookey/page4.png`,
+          ]}
+        />
+
+        <p className="mt-8 text-center font-mono text-sm text-muted-foreground">
+          {`SUTD Design Thinking & Innovation — Group 2 · Sheil, Xavier, Iestin, Srijeet & Somesh.`}
+        </p>
+      </div>
+    ),
+  },
+  {
     id: "sculptsync-benchmark",
     category: "ML · LLM Evaluation",
     title: "SculptSync LLM Evaluation Benchmark",
+    src: `${BASE_PATH}/sculptsync/cover.jpg`,
     accent: "#a78bfa",
     icon: <FlaskConical />,
     skills: {
@@ -463,18 +717,36 @@ const projects: Project[] = [
             "NumPy",
           ]}
         />
+        <DocLink href="/assets/sculptsync/SculptSync-Report.pdf" />
 
-        <TypographyH3 className="my-4 mt-8">Evaluation harness</TypographyH3>
+        <TypographyH3 className="my-4 mt-8">The prompt benchmark</TypographyH3>
         <p className="font-mono mb-2">
-          {`Python scoring scripts compare prompt versions and model outputs, turning subjective LLM feedback quality into measurable results. Rubric-based scoring is summarized in comparison tables alongside an analysis of each model's weaknesses and failure patterns.`}
+          {`Seven prompt styles — from terse PT-style cues to friendly beginner coaching — were run across Gemini 2.0 Flash, LLaMA 3 and Qwen 3. Python scoring scripts compared the outputs on consistency, specificity, safety and actionability, turning "which model sounds best" into measurable comparison tables.`}
         </p>
-        <ComingSoon items={["screens", "poster"]} />
+        <SlideShow images={[`${BASE_PATH}/sculptsync/prompt-styles.png`]} />
+
+        <TypographyH3 className="my-4 mt-8">
+          The signal — pose-estimation form scoring
+        </TypographyH3>
+        <p className="font-mono mb-2">
+          {`The feedback the LLMs reason over is a pose-estimation form score: MediaPipe landmarks are DTW-aligned against ideal form and reduced to per-joint angle deviations. Tuning that scorer (restricting key-points, weighting, sequence length) lifted good-vs-bad-form ROC-AUC from 0.79 to 0.979.`}
+        </p>
+        <SlideShow
+          images={[
+            `${BASE_PATH}/sculptsync/joint-deviation.png`,
+            `${BASE_PATH}/sculptsync/roc-auc.png`,
+            `${BASE_PATH}/sculptsync/form-score-separation.png`,
+          ]}
+        />
 
         <TypographyH3 className="my-4 mt-8">IoT-grounded prompts</TypographyH3>
         <p className="font-mono mb-2">
           {`An AWS IoT Core pipeline ingests ESP32 telemetry from gym machines, feeding real repetition data and backend context into prompts so the models produce concise, region-level posture recommendations from actual exercise signals rather than toy inputs.`}
         </p>
-        <ComingSoon items={["prototype"]} />
+
+        <p className="mt-8 text-center font-mono text-sm text-muted-foreground">
+          {`Team project — pose-estimation core by the SculptSync team; LLM evaluation & IoT telemetry by Somesh.`}
+        </p>
       </div>
     ),
   },
@@ -520,44 +792,10 @@ const projects: Project[] = [
     ),
   },
   {
-    id: "mahjong",
-    category: "Full-Stack · Real-time Game",
-    title: "Real-Time Mahjong Multiplayer",
-    accent: "#34d399",
-    icon: <Gamepad2 />,
-    skills: {
-      frontend: [PROJECT_SKILLS.react, PROJECT_SKILLS.ts],
-      backend: [
-        PROJECT_SKILLS.node,
-        PROJECT_SKILLS.websockets,
-        PROJECT_SKILLS.vitest,
-      ],
-    },
-    // Web project — live & source links going up later.
-    live: "#",
-    content: (
-      <div>
-        <TypographyP className="font-mono text-2xl text-center">
-          {`A real-time multiplayer Mahjong engine — clean monorepo, tested game logic.`}
-        </TypographyP>
-        <TypographyP className="font-mono">
-          {`A real-time multiplayer Mahjong game with a React frontend, a Node.js game engine and a shared game-logic module, using WebSocket-style state updates and Vitest unit tests. Structured as a clean monorepo separating client, server and shared logic to keep multiplayer state consistent, maintainable and correctness-tested.`}
-        </TypographyP>
-
-        <TypographyH3 className="my-4 mt-8">Authoritative game logic</TypographyH3>
-        <p className="font-mono mb-2">
-          {`A shared rules module drives game state across clients with WebSocket-style updates, and Vitest unit tests pin down correctness for the trickier multiplayer transitions — so the same logic stays trustworthy on both client and server.`}
-        </p>
-        <ComingSoon items={["screens", "link"]} />
-      </div>
-    ),
-  },
-
-  // ─────────────────── Collections (links to more work) ───────────────────
-  {
     id: "ds-ml",
     category: "Collection · 4 projects",
     title: "Data Science & ML",
+    src: `${BASE_PATH}/ds-ml/cover.jpg`,
     accent: "#818cf8",
     icon: <BrainCircuit />,
     kind: "collection",
@@ -566,61 +804,167 @@ const projects: Project[] = [
     content: (
       <div>
         <TypographyP className="font-mono">
-          {`Applied ML and data-science work — from models built bare-metal in NumPy to forecasting pipelines and AI assistants. (Screenshots, plots and posters going up soon.)`}
+          {`Applied ML and data-science work — from models built bare-metal in NumPy to a solar-forecasting pipeline, an IB research essay on data augmentation, and AI assistants.`}
         </TypographyP>
 
         <Entry
           title="ML Fundamentals From Scratch"
           period="2026"
-          tags={["Python", "NumPy", "Jupyter", "Matplotlib"]}
-          media={["screens", "poster"]}
+          tags={["Python", "NumPy", "Matplotlib", "Jupyter"]}
+          repo="https://github.com/SomeshAgrawal1318/Machine-Learning-Algorithms-from-Scratch"
+          images={[
+            `${BASE_PATH}/ml-scratch/linear.png`,
+            `${BASE_PATH}/ml-scratch/gd-vs-sgd.png`,
+            `${BASE_PATH}/ml-scratch/poly-deg2.png`,
+            `${BASE_PATH}/ml-scratch/poly-fits.png`,
+            `${BASE_PATH}/ml-scratch/error-vs-degree.png`,
+            `${BASE_PATH}/ml-scratch/ridge-loss.png`,
+            `${BASE_PATH}/ml-scratch/kmeans.png`,
+          ]}
         >
-          {`Implemented Perceptron, linear / polynomial / ridge regression, gradient descent, stochastic gradient descent, K-Means and neural networks in pure NumPy — no sklearn, no TensorFlow. Hit 96.7% Perceptron accuracy and ran K-Means image compression on a 210k-pixel image while studying regularization and numerical stability.`}
+          {`Classic ML algorithms implemented from first principles in pure NumPy — no sklearn, no TensorFlow. A perceptron classifies handwritten digits (1 vs 5) from intensity/symmetry features at 96.7% test accuracy; closed-form, gradient-descent and SGD linear regression are compared head-to-head; polynomial regression is swept from degree 1 to 15 to watch overfitting kick in; ridge regression is tuned by validation loss across λ; and K-Means (K=8) compresses a 210,012-pixel image down to eight colours. The charts below are pulled straight from the report.`}
         </Entry>
 
         <Entry
           title="Solar Plant Regression & Energy Analytics"
           period="2025 · SUTD Data-Driven World"
-          tags={["Python", "pandas", "Regression", "Streamlit"]}
-          media={["screens", "poster"]}
+          tags={["Python", "pandas", "Linear Regression", "Streamlit"]}
+          repo="https://github.com/SomeshAgrawal1318/Solar-Power-Plant-regression"
+          report="/assets/reports/Solar-Power-Regression-Report.pdf"
+          images={[
+            `${BASE_PATH}/solar-reg/features.png`,
+            `${BASE_PATH}/solar-reg/pred-linear.png`,
+            `${BASE_PATH}/solar-reg/pred-poly.png`,
+          ]}
         >
-          {`A solar-power forecasting pipeline joining inverter-level power readings with irradiation, module temperature, ambient temperature and time features. Engineered features, filtered night-time zero-output rows, and compared closed-form regression, gradient descent and polynomial models (RMSE / R²), packaged into a Streamlit-style analytics workflow for inspecting model behavior.`}
+          {`Short-term (15-minute) solar-output forecasting for an Indian power plant. I merged inverter-level generation data with weather-sensor readings (irradiation, module and ambient temperature) from a Kaggle dataset, aggregated the 21 inverters per timestamp, and engineered features after filtering night-time zero-output rows. A linear-regression model — trained closed-form and with gradient descent, plus a polynomial variant — predicts power output and flags performance anomalies, evaluated with RMSE and R² and shipped as a Streamlit web app.`}
         </Entry>
 
         <Entry
-          title="CNN Robustness — IB Extended Essay"
-          period="2024"
-          tags={["Python", "PyTorch / TensorFlow", "CNNs"]}
-          media={["poster", "screens"]}
+          title="Data Augmentation in Computer Vision — IB Extended Essay"
+          period="2024 · IB Computer Science"
+          tags={["Python", "TensorFlow / Keras", "CNNs", "Data Augmentation"]}
+          report="/assets/reports/Somesh-Agrawal-EE-Data-Augmentation.pdf"
+          images={[
+            `${BASE_PATH}/ee/augmentations.png`,
+            `${BASE_PATH}/ee/cnn-diagram.png`,
+            `${BASE_PATH}/ee/results-bars2.png`,
+          ]}
         >
-          {`Independent research on how combinations of affine transformations, noise injection and intensity transformations affect a CNN's object-detection accuracy and computational cost — an early, structured dive into ML robustness and the cost/accuracy trade-off.`}
+          {`My ~3,900-word IB Computer Science Extended Essay: how do combinations of affine transformations, noise injection and intensity transformations affect a CNN's object-detection accuracy and computational cost? I trained CNNs across systematically varied augmentation combinations, measuring test accuracy against training time on primary and secondary datasets — a structured early dive into the accuracy-versus-cost trade-off of data augmentation. Full essay linked below.`}
         </Entry>
 
         <Entry
-          title="geo — Gemini Voice Assistant"
+          title="geo — Gemini Voice Assistant for Chongqing"
           period="2025"
-          tags={["Python", "Gemini API", "Whisper", "Tkinter"]}
-          media={["screens", "demo"]}
+          tags={["Python", "Gemini API", "Whisper", "pyttsx3 TTS", "Tkinter"]}
+          repo="https://github.com/SomeshAgrawal1318/Geo-Gemini-Voice-Assistant-for-Chongqing"
         >
-          {`A local multimodal AI assistant combining Whisper speech-to-text, Gemini responses, pyttsx3 text-to-speech and a Tkinter desktop UI — a practical LLM-application prototype focused on prompt flow, user interaction and API-backed model integration.`}
+          {`A local, multimodal voice assistant built for Chongqing — it pipes Whisper speech-to-text into Gemini and back out through pyttsx3 text-to-speech behind a Tkinter desktop UI, so you can talk to it and get spoken answers about the city. A practical LLM-application prototype focused on the full voice loop: prompt flow, user interaction and API-backed model integration.`}
         </Entry>
       </div>
     ),
   },
   {
+    id: "mahjong",
+    category: "Full-Stack · Real-time Game",
+    title: "Real-Time Mahjong Multiplayer",
+    accent: "#34d399",
+    icon: <Gamepad2 />,
+    src: `${BASE_PATH}/mahjong/cover.jpg`,
+    skills: {
+      frontend: [
+        PROJECT_SKILLS.react,
+        PROJECT_SKILLS.ts,
+        PROJECT_SKILLS.zustand,
+      ],
+      backend: [
+        PROJECT_SKILLS.node,
+        PROJECT_SKILLS.express,
+        PROJECT_SKILLS.sockerio,
+        PROJECT_SKILLS.vitest,
+      ],
+    },
+    live: "https://mahjong-team2.netlify.app/",
+    github: "https://github.com/SomeshAgrawal1318/Mahjong",
+    content: (
+      <div>
+        <TypographyP className="font-mono text-2xl text-center">
+          {`Real-time 4-player Mahjong — spin up a room, share the code, play from any device.`}
+        </TypographyP>
+        <TypographyP className="font-mono">
+          {`A production-quality multiplayer Mahjong web app: rooms with a 6-character code, four seats (East / South / West / North), and a server-authoritative engine so the rules — not the clients — decide every move. Built as a clean monorepo: a React + Vite + Zustand client, a Node + Express + Socket.IO server, and a shared rules module, with Vitest covering the engine.`}
+        </TypographyP>
+        <Tags
+          items={[
+            "React",
+            "Vite",
+            "Zustand",
+            "Node.js",
+            "Express",
+            "Socket.IO",
+            "Vitest",
+          ]}
+        />
+
+        <TypographyH3 className="my-4 mt-8">Server-authoritative engine</TypographyH3>
+        <p className="font-mono mb-2">
+          {`Real-time state syncs over Socket.IO with proper turn management; the server validates every draw, discard and claim so a client can't cheat. It detects a winning hand (4 melds + 1 pair), supports Pong (three of a kind) and Chow (a run claimed from the previous player), and restores game state when a player reconnects.`}
+        </p>
+
+        <TypographyH3 className="my-4 mt-8">An authentic table, built by hand</TypographyH3>
+        <p className="font-mono mb-2">
+          {`SVG tiles render the traditional suits — characters (萬, red), bamboo (索, green) and dots (筒, blue) plus winds and dragons — over a deep-green felt table with glass-morphism player panels and subtle draw / discard animations.`}
+        </p>
+
+        <p className="font-mono mb-2 text-muted-foreground">
+          {`Heads-up: the live server runs on Render's free tier, so the first connection after it has been idle takes ~30s to wake.`}
+        </p>
+      </div>
+    ),
+  },
+
+  // ─────────────────── Collections (links to more work) ───────────────────
+  {
     id: "robotics",
-    category: "Collection · 3 projects",
+    category: "Collection · 5 projects",
     title: "Robotics",
+    src: `${BASE_PATH}/robotics/cover.jpg`,
     accent: "#fb923c",
     icon: <Bot />,
     kind: "collection",
-    count: 3,
+    count: 5,
     skills: { frontend: [], backend: [] },
     content: (
       <div>
         <TypographyP className="font-mono">
-          {`Hands-on robotics — from a beach-cleaning robot's chassis to a quadruped-robotics internship in China. (On-site photos, prototype shots and posters going up soon.)`}
+          {`Hands-on robotics — from training an embodied-AI manipulation policy on LeRobot arms to a quadruped-robotics internship in China and a beach-cleaning robot's chassis.`}
         </TypographyP>
+
+        <Entry
+          title="Embodied AI — ACT policy on SO-101 arms"
+          period="2025"
+          tags={[
+            "LeRobot",
+            "ACT (Action Chunking)",
+            "Imitation Learning",
+            "Teleoperation",
+            "PyTorch",
+          ]}
+          video="uUBpf-cmuTI"
+        >
+          {`Trained an ACT (Action Chunking with Transformers) policy on a pair of LeRobot SO-101 arms for a block pick-and-place. I teleoperated the follower with a leader arm to collect demonstrations, then trained an imitation-learning policy — following LeRobot's framework — that generalizes the motion to new block positions. The bet behind it: AI already crushes chess, code and essays, but everyday physical tasks (folding laundry, picking up a block) are still hard. Cheap arms + modern ML put that "physical intelligence" frontier within reach of a desk, not just a lab. Full build write-up coming; inference video below.`}
+        </Entry>
+
+        <Entry
+          title="ROS 2 — Learning Journey"
+          period="2025"
+          tags={["ROS 2 Humble", "rclpy", "Nodes / Topics", "Linux"]}
+          repo="https://github.com/SomeshAgrawal1318/ROS2-Practice"
+          logo={`${BASE_PATH}/ros2/humble.png`}
+        >
+          {`Getting hands-on with ROS 2 (Humble Hawksbill) — nodes, topics, publishers / subscribers, services and the workspace / build tooling the rest of modern robotics runs on. My practice repo as I ramp toward bigger robotics and embodied-AI work.`}
+        </Entry>
 
         <Entry
           title="DEEP Robotics — Robotics Internship"
@@ -651,36 +995,83 @@ const projects: Project[] = [
     ),
   },
   {
-    id: "hardware",
-    category: "Collection · 3 projects",
-    title: "Hardware",
-    accent: "#2dd4bf",
-    icon: <Cpu />,
+    id: "hardware-cad",
+    category: "Collection · 6 projects",
+    title: "Hardware & CAD",
+    src: `${BASE_PATH}/hardware-cad/cover.jpg`,
+    accent: "#38bdf8",
+    icon: <DraftingCompass />,
     kind: "collection",
-    count: 3,
+    count: 6,
     skills: { frontend: [], backend: [] },
     content: (
       <div>
         <TypographyP className="font-mono">
-          {`Embedded and electronics work — IoT telemetry, sensors and maker-space fabrication. (Prototype photos and bench shots going up soon.)`}
+          {`Where the bits meet the physical world — FPGA electronics, embedded IoT, mechanical and PCB CAD, and maker-space fabrication.`}
         </TypographyP>
+
+        <Entry
+          title="Whack-a-Green — FPGA Reaction Game"
+          period="SUTD · 50.002 Computation Structures · Team 46"
+          tags={[
+            "FPGA",
+            "Lucid / Alchitry",
+            "Custom ALU",
+            "FSM",
+            "Fusion 360 CAD",
+          ]}
+          repo="https://github.com/50002-computation-structures/1d-project-cl04-team-46"
+          images={[
+            `${BASE_PATH}/whack/enclosure.png`,
+            `${BASE_PATH}/whack/fsm.png`,
+            `${BASE_PATH}/whack/datapath.png`,
+            `${BASE_PATH}/whack/poster.png`,
+          ]}
+        >
+          {`A whack-a-mole-style arcade reaction game built on an FPGA for SUTD's 50.002 (Computation Structures). Players hit green LEDs for points and dodge red ones across a 30-second, three-lives round, with pseudo-random mole generation (LFSR), RGB-LED feedback and dual 7-segment displays for score, timer and high score. I worked on the electronics and the CAD — designing the angled arcade enclosure with its mole-button layout in Fusion 360. Under the hood it runs a custom 32-bit datapath: a register file, an FSM (START → GENERATE MOLE → BUTTON PRESS → UPDATE SCORE → END GAME) and an ALU extended with BITSET/BITCLR (LED control), ADDSAT/SUBSAT (overflow-safe scoring) and MOD (valid mole positioning).`}
+        </Entry>
+
+        <Entry
+          title="Foldable Solar Heating Pad — CAD & Product Design"
+          period="DES 1D"
+          tags={["CAD", "3D printing", "MPPT", "Li-ion", "Product design"]}
+          images={[
+            `${BASE_PATH}/solar/cad-angled.png`,
+            `${BASE_PATH}/solar/cad-top.png`,
+            `${BASE_PATH}/solar/cad-assembly.png`,
+            `${BASE_PATH}/solar/product.png`,
+            `${BASE_PATH}/solar/schematic.png`,
+          ]}
+        >
+          {`CAD and product design for a solar-powered portable heating pad for sleeping bags — warmth for campers and mountaineers where there is no mains power. I designed a fold-flat panel array with a 3D-printed casing that houses the electronics (4× 5.5V panels → DFR0559 MPPT controller → 3.7V Li-ion → 5V heating pad) plus an insulation layer to cut heat loss. It charges by day and pre-warms the bag for ~90 minutes at night — lightweight and packable.`}
+        </Entry>
 
         <Entry
           title="ESP32 Gym-Machine Telemetry"
           period="2025"
-          tags={["ESP32", "AWS IoT Core", "Sensors"]}
-          media={["prototype", "screens"]}
+          tags={["ESP32", "AWS IoT Core", "MQTT / TLS", "AWS Lambda"]}
+          report="/assets/sculptsync/SculptSync-Report.pdf"
+          images={[`${BASE_PATH}/sculptsync/iot-architecture.png`]}
         >
-          {`Built an AWS IoT Core ingestion pipeline for ESP32 telemetry from gym machines — wiring sensors for repetition-count experiments with cloud-backed logging. This is the hardware layer behind the SculptSync benchmark.`}
+          {`An ESP32 on the gym machine streams workout telemetry — reps, sets, tempo, score, feedback — to AWS IoT Core over TLS-secured MQTT (mutual X.509 auth). An IoT Rule routes each message to an AWS Lambda that parses and stores it: the cloud-backed telemetry layer behind the SculptSync benchmark.`}
         </Entry>
 
         <Entry
-          title="SeaSOAR — Electronics & Fabrication"
-          period="SUTD SOAR"
-          tags={["Fabrication", "Electronics", "Workshop"]}
-          media={["prototype", "poster"]}
+          title="Team SeaSOAR — Chassis, Electronics & Fabrication"
+          period="SUTD SOAR · Sustainability Award"
+          tags={["Fusion 360", "Mechanical CAD", "Electronics", "Fabrication"]}
+          media={["cad", "prototype", "poster"]}
         >
-          {`Built and fabricated mechanical and electrical subsystems for the SOAR beach-cleaning robot, taking parts from CAD to physical hardware using workshop fabrication equipment.`}
+          {`Designed the chassis of an autonomous beach-cleaning robot in Fusion 360 and fabricated its mechanical and electrical subsystems with SUTD's autonomous robotics organization (SOAR), taking parts from CAD to physical hardware with workshop equipment — work that earned the team a Sustainability Award.`}
+        </Entry>
+
+        <Entry
+          title="RoboCred — PCB & Schematic Checks"
+          period="2026"
+          tags={["KiCad", "AutoCAD", "PCB"]}
+          media={["schematic", "screens"]}
+        >
+          {`The CAD side of RoboCred — parsing KiCad schematics and AutoCAD drawings to run automated standards / compliance checks and BOM diffs. See the RoboCred card above for the full tool.`}
         </Entry>
 
         <Entry
@@ -695,36 +1086,38 @@ const projects: Project[] = [
     ),
   },
   {
-    id: "cad",
+    id: "systems-c",
     category: "Collection · 2 projects",
-    title: "CAD",
-    accent: "#60a5fa",
-    icon: <DraftingCompass />,
+    title: "Systems & C",
+    src: `${BASE_PATH}/shell/cover.jpg`,
+    accent: "#34d399",
+    icon: <Cpu />,
     kind: "collection",
     count: 2,
     skills: { frontend: [], backend: [] },
     content: (
       <div>
         <TypographyP className="font-mono">
-          {`Mechanical and electrical CAD — chassis design in Fusion 360 and PCB / schematic work in KiCad and AutoCAD. (CAD renders and schematics going up soon.)`}
+          {`Low-level systems work in C on Linux — building a shell from scratch and the OS / security fundamentals underneath it.`}
         </TypographyP>
 
         <Entry
-          title="SeaSOAR Chassis — Fusion 360"
-          period="SUTD SOAR · Sustainability Award"
-          tags={["Fusion 360", "Mechanical CAD", "Fabrication"]}
-          media={["cad", "prototype", "poster"]}
+          title="CSEShell — a Unix Shell in C"
+          period="2025"
+          tags={["C", "Linux", "Processes", "Unity tests", "Make"]}
+          repo="https://github.com/SomeshAgrawal1318/Shell-in-Linux"
+          images={[`${BASE_PATH}/shell/ss.png`]}
         >
-          {`Designed the chassis of the SOAR beach-cleaning robot in Fusion 360 and carried it from model to fabricated part with workshop equipment — the mechanical-CAD half of the SeaSOAR project that earned a Sustainability Award.`}
+          {`A custom Unix shell written in C — built-in commands plus a set of system programs (find, ld, ldr) compiled from source via a makefile. It handles command parsing and execution with fork/exec process control, and ships its own test suite: C unit tests on the helper libraries (Unity framework) plus black-box Bash integration tests that drive ./cseshell. A hands-on tour of how a shell, processes and the Unix toolchain actually fit together.`}
         </Entry>
 
         <Entry
-          title="RoboCred — PCB & Schematic Checks"
-          period="2026"
-          tags={["KiCad", "AutoCAD", "PCB"]}
-          media={["schematic", "screens"]}
+          title="Computer Systems & Security Labs"
+          period="2026 · SUTD"
+          tags={["C", "Linux", "TOCTOU", "Banker's Algorithm"]}
+          media={["screens"]}
         >
-          {`The CAD side of RoboCred — parsing KiCad schematics and AutoCAD drawings to run automated standards / compliance checks and BOM diffs. See the RoboCred card above for the full tool.`}
+          {`C and Linux systems exercises covering process control, shell behaviour, environment variables, memory handling and command execution — plus a TOCTOU race-condition security lab and a Banker's Algorithm deadlock-avoidance implementation: OS-level reasoning about how concurrency and resource allocation go wrong.`}
         </Entry>
       </div>
     ),

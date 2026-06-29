@@ -3,6 +3,8 @@ import React from "react";
 import {
   ResponsiveDialog,
   ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogTitle,
   ResponsiveDialogTrigger,
 } from "../ui/responsive-dialog";
 import { FloatingDock } from "../ui/floating-dock";
@@ -66,6 +68,15 @@ const ProjectCard = ({ project }: { project: Project }) => {
         </ResponsiveDialogTrigger>
 
         <ResponsiveDialogContent className="md:max-w-4xl md:h-[85vh] md:!flex md:flex-col md:overflow-hidden md:p-0 md:gap-0">
+          {/* Accessible name + description for screen readers. The visible
+              header below is decorative markup, so Radix can't infer them —
+              without these it warns that DialogContent is missing a title. */}
+          <ResponsiveDialogTitle className="sr-only">
+            {project.title}
+          </ResponsiveDialogTitle>
+          <ResponsiveDialogDescription className="sr-only">
+            {project.category} — project details
+          </ResponsiveDialogDescription>
           {/* Sticky header */}
           <div className="shrink-0 border-b border-border bg-background/80 backdrop-blur-sm px-8 py-5">
             <div className="flex items-center justify-between gap-4">

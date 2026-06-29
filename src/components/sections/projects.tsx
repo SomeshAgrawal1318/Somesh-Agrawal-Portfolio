@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useRef } from "react";
 import {
   ResponsiveDialog,
   ResponsiveDialogContent,
@@ -11,7 +11,7 @@ import { FloatingDock } from "../ui/floating-dock";
 import { ScrollArea } from "../ui/scroll-area";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { motion } from "motion/react";
+import { motion, useInView, useReducedMotion } from "motion/react";
 
 import projects, { Project } from "@/data/projects";
 import { SectionHeader } from "./section-header";
@@ -20,15 +20,83 @@ import SectionWrapper from "../ui/section-wrapper";
 import ScrollingPreview from "../scrolling-preview";
 
 const ProjectsSection = () => {
+  const reduce = useReducedMotion();
+  const gridRef = useRef<HTMLDivElement>(null);
+  // Trigger off the grid itself (which stays in layout position) rather than
+  // the cards — their big 3D entrance transforms would displace each card's
+  // intersection box and could stop a per-card observer from ever firing.
+  const inView = useInView(gridRef, { once: true, margin: "0px 0px -120px 0px" });
   return (
     <SectionWrapper id="projects" className="max-w-7xl mx-auto md:min-h-[130vh] px-4">
       <SectionHeader id="projects" title="Projects" />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {projects.map((project) => (
-          <ProjectCard key={project.id} project={project} />
+      <div
+        ref={gridRef}
+        className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        style={{ perspective: "1600px", transformStyle: "preserve-3d" }}
+      >
+        {projects.map((project, i) => (
+          <RevealCard
+            key={project.id}
+            project={project}
+            index={i}
+            inView={inView}
+            reduce={!!reduce}
+          />
         ))}
       </div>
     </SectionWrapper>
+  );
+};
+
+// The hidden / shown poses for the entrance. Outer columns start swept out to
+// their side and spun on Y; the centre column starts pushed down and flipped.
+const hiddenPose = (i: number) => {
+  const col = i % 3;
+  const side = col === 0 ? -1 : col === 2 ? 1 : 0;
+  const spin = side !== 0 ? side * -82 : i % 2 ? 66 : -66;
+  return {
+    opacity: 0,
+    rotateY: spin,
+    x: side * 90,
+    y: side === 0 ? 48 : 22,
+    z: -340,
+    scale: 0.85,
+  };
+};
+const shownPose = { opacity: 1, rotateY: 0, x: 0, y: 0, z: 0, scale: 1 };
+
+// 3D "revolve in, then settle" entrance: when the grid first scrolls into view
+// every card spins in on the Y axis with depth, cascading row by row, then a
+// spring lets them settle flat for calm viewing. Reduced-motion → plain card.
+const RevealCard = ({
+  project,
+  index,
+  inView,
+  reduce,
+}: {
+  project: Project;
+  index: number;
+  inView: boolean;
+  reduce: boolean;
+}) => {
+  if (reduce) return <ProjectCard project={project} />;
+  const col = index % 3;
+  const row = Math.floor(index / 3);
+  return (
+    <motion.div
+      style={{ transformStyle: "preserve-3d", willChange: "transform" }}
+      initial={hiddenPose(index)}
+      animate={inView ? shownPose : hiddenPose(index)}
+      transition={{
+        type: "spring",
+        stiffness: 52,
+        damping: 14,
+        mass: 0.9,
+        delay: inView ? row * 0.12 + col * 0.08 : 0,
+      }}
+    >
+      <ProjectCard project={project} />
+    </motion.div>
   );
 };
 

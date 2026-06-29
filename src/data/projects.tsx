@@ -19,7 +19,6 @@ import {
   Play,
   Presentation,
   Smartphone,
-  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { ReactNode } from "react";
@@ -537,56 +536,6 @@ const projects: Project[] = [
     ),
   },
   {
-    id: "robocred",
-    category: "Hardware · Compliance Automation",
-    title: "RoboCred — PCB & AutoCAD Compliance Checker",
-    accent: "#22d3ee",
-    icon: <CircuitBoard />,
-    skills: {
-      frontend: [],
-      backend: [
-        PROJECT_SKILLS.python,
-        PROJECT_SKILLS.kicad,
-        PROJECT_SKILLS.autocad,
-        PROJECT_SKILLS.supabase,
-        PROJECT_SKILLS.pdf,
-        PROJECT_SKILLS.pytest,
-      ],
-    },
-    content: (
-      <div>
-        <TypographyP className="font-mono text-2xl text-center">
-          {`Static analysis for hardware — turns KiCad schematics into audit-ready compliance reports.`}
-        </TypographyP>
-        <TypographyP className="font-mono">
-          {`A Python automation tool that parses KiCad schematics, runs standards-oriented design checks, diffs BOM revisions across versions, generates PDF audit reports, and stores the audit history in Supabase. Conceived during my DEEP Robotics internship as a compliance layer for engineering documentation — bringing software-style CI rigor (auditability, traceability, regression diffing) to hardware design review.`}
-        </TypographyP>
-        <Tags
-          items={[
-            "Python",
-            "KiCad",
-            "AutoCAD",
-            "Supabase",
-            "PDF reports",
-            "pytest",
-          ]}
-        />
-
-        <TypographyH3 className="my-4 mt-8">Compliance pipeline</TypographyH3>
-        <p className="font-mono mb-2">
-          {`Parse schematic → rule-based standards checks → BOM revision diff → generated PDF audit report → Supabase audit store. The workflow stays focused on automation, traceable outputs and clear handoff documentation for engineering review.`}
-        </p>
-        <ComingSoon items={["screens", "schematic"]} />
-
-        <TypographyH3 className="my-4 mt-8">Architecture</TypographyH3>
-        <p className="font-mono mb-2">
-          {`20+ Python modules organized around validation, reporting, revision comparison and tests — a test-focused structure that emphasizes maintainable backend architecture and reliable, reproducible report generation.`}
-        </p>
-        <ComingSoon items={["poster", "prototype"]} />
-      </div>
-    ),
-  },
-  {
     id: "kookey",
     category: "Design · Hardware Product",
     title: "Kookey",
@@ -747,47 +696,6 @@ const projects: Project[] = [
         <p className="mt-8 text-center font-mono text-sm text-muted-foreground">
           {`Team project — pose-estimation core by the SculptSync team; LLM evaluation & IoT telemetry by Somesh.`}
         </p>
-      </div>
-    ),
-  },
-  {
-    id: "cinematch",
-    category: "Data Science · Generative AI",
-    title: "CineMatch — GenAI Movie Recommender",
-    accent: "#f59e0b",
-    icon: <Sparkles />,
-    skills: {
-      frontend: [PROJECT_SKILLS.react],
-      backend: [
-        PROJECT_SKILLS.fastapi,
-        PROJECT_SKILLS.python,
-        PROJECT_SKILLS.sbert,
-        PROJECT_SKILLS.sqlite,
-      ],
-    },
-    content: (
-      <div>
-        <TypographyP className="font-mono text-2xl text-center">
-          {`Describe a vibe, get ranked films — embeddings + LLM explanations over 9,000 titles.`}
-        </TypographyP>
-        <TypographyP className="font-mono">
-          {`A recommendation chatbot that turns natural-language taste ("something cozy but smart") into ranked suggestions across a 9,000-title MovieLens catalog using sentence embeddings and cosine similarity, with short LLM-generated explanations for each pick. Served through a FastAPI backend, a React chat interface and SQLite persistence.`}
-        </TypographyP>
-        <Tags
-          items={["Python", "FastAPI", "React", "Sentence-BERT", "SQLite"]}
-        />
-
-        <TypographyH3 className="my-4 mt-8">Recommendation engine</TypographyH3>
-        <p className="font-mono mb-2">
-          {`Sentence-embedding similarity ranks the catalog against a user's described tastes; like / dislike feedback re-ranks results in real time, storing lightweight preference data in SQLite to simulate session-level preference memory.`}
-        </p>
-        <ComingSoon items={["screens", "demo"]} />
-
-        <TypographyH3 className="my-4 mt-8">Evaluation</TypographyH3>
-        <p className="font-mono mb-2">
-          {`Ranking quality is measured with Recall@K and NDCG@K on held-out user ratings, used to compare embedding models and retrieval strategies rather than eyeballing demos.`}
-        </p>
-        <ComingSoon items={["poster"]} />
       </div>
     ),
   },
@@ -1119,6 +1027,56 @@ const projects: Project[] = [
         >
           {`C and Linux systems exercises covering process control, shell behaviour, environment variables, memory handling and command execution — plus a TOCTOU race-condition security lab and a Banker's Algorithm deadlock-avoidance implementation: OS-level reasoning about how concurrency and resource allocation go wrong.`}
         </Entry>
+      </div>
+    ),
+  },
+  {
+    id: "robocred",
+    category: "Hardware · Compliance Automation",
+    title: "RoboCred — PCB & AutoCAD Compliance Checker",
+    accent: "#22d3ee",
+    icon: <CircuitBoard />,
+    skills: {
+      frontend: [],
+      backend: [
+        PROJECT_SKILLS.python,
+        PROJECT_SKILLS.kicad,
+        PROJECT_SKILLS.autocad,
+        PROJECT_SKILLS.supabase,
+        PROJECT_SKILLS.pdf,
+        PROJECT_SKILLS.pytest,
+      ],
+    },
+    content: (
+      <div>
+        <TypographyP className="font-mono text-2xl text-center">
+          {`Static analysis for hardware — turns KiCad schematics into audit-ready compliance reports.`}
+        </TypographyP>
+        <TypographyP className="font-mono">
+          {`A Python automation tool that parses KiCad schematics, runs standards-oriented design checks, diffs BOM revisions across versions, generates PDF audit reports, and stores the audit history in Supabase. Conceived during my DEEP Robotics internship as a compliance layer for engineering documentation — bringing software-style CI rigor (auditability, traceability, regression diffing) to hardware design review.`}
+        </TypographyP>
+        <Tags
+          items={[
+            "Python",
+            "KiCad",
+            "AutoCAD",
+            "Supabase",
+            "PDF reports",
+            "pytest",
+          ]}
+        />
+
+        <TypographyH3 className="my-4 mt-8">Compliance pipeline</TypographyH3>
+        <p className="font-mono mb-2">
+          {`Parse schematic → rule-based standards checks → BOM revision diff → generated PDF audit report → Supabase audit store. The workflow stays focused on automation, traceable outputs and clear handoff documentation for engineering review.`}
+        </p>
+        <ComingSoon items={["screens", "schematic"]} />
+
+        <TypographyH3 className="my-4 mt-8">Architecture</TypographyH3>
+        <p className="font-mono mb-2">
+          {`20+ Python modules organized around validation, reporting, revision comparison and tests — a test-focused structure that emphasizes maintainable backend architecture and reliable, reproducible report generation.`}
+        </p>
+        <ComingSoon items={["poster", "prototype"]} />
       </div>
     ),
   },

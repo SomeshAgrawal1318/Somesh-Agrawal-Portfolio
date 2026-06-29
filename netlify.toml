@@ -1,0 +1,27 @@
+# Netlify build config for this Next.js (App Router) site.
+#
+# Deploy via GitHub:
+#   1. Push this repo to GitHub.
+#   2. In Netlify: "Add new site" → "Import an existing project" → GitHub →
+#      pick this repo. Netlify reads this file and configures everything.
+#   3. Add environment variables under Site settings → Environment variables
+#      (see below), then deploy. Pushes to the default branch auto-deploy.
+#
+# Env vars the app uses (set them in the Netlify dashboard, not in git):
+#   RESEND_API_KEY      – required for the contact form (Resend)
+#   NEXT_PUBLIC_WS_URL  – optional, enables realtime cursors/chat/presence
+#   UMAMI_DOMAIN        – optional, analytics script URL
+#   UMAMI_SITE_ID       – optional, analytics website id
+
+[build]
+  command = "next build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Official Netlify Next.js runtime (auto-installed during build). It handles
+# SSR, API routes, next/image optimization and App Router output — no manual
+# function or redirect config needed.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"

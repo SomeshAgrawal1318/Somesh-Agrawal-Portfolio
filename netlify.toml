@@ -17,8 +17,10 @@
   command = "next build"
   publish = ".next"
 
+# Node 22: pnpm 11.x (pinned via package.json "packageManager") needs Node
+# >= 22.13 (it uses the node:sqlite builtin); Next.js 16 supports Node 22 too.
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "22"
 
 # Official Netlify Next.js runtime (auto-installed during build). It handles
 # SSR, API routes, next/image optimization and App Router output — no manual

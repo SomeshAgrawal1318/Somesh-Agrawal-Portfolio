@@ -39,13 +39,19 @@ const ProjectCard = ({ project }: { project: Project }) => {
             className="group relative w-full max-w-[400px] h-auto rounded-lg overflow-hidden ring-1 ring-white/5"
             style={{ aspectRatio: "3/2" }}
           >
-            {/* `src` can be any aspect ratio (tall pages pan, normal ones fit);
-                the wallpaper is an optional /assets/backgrounds/<id>.jpg. */}
-            <ScrollingPreview
-              src={project.src}
-              alt={project.title}
-              bg={`/assets/backgrounds/${project.id}.jpg`}
-            />
+            {/* With a screenshot, `src` can be any aspect ratio (tall pages pan,
+                normal ones fit) over an optional /assets/backgrounds/<id>.jpg.
+                Without one (DS/robotics/CAD work, or a collection tile), render
+                a branded accent + icon poster instead. */}
+            {project.src ? (
+              <ScrollingPreview
+                src={project.src}
+                alt={project.title}
+                bg={`/assets/backgrounds/${project.id}.jpg`}
+              />
+            ) : (
+              <ProjectPoster project={project} />
+            )}
             <div className="absolute w-full h-24 bottom-0 left-0 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none z-10">
               <div className="flex flex-col h-full items-start justify-end p-4">
                 <div className="text-lg text-left [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">
@@ -137,6 +143,39 @@ const ProjectCard = ({ project }: { project: Project }) => {
 
         </ResponsiveDialogContent>
       </ResponsiveDialog>
+    </div>
+  );
+};
+
+// Branded poster for cards without a screenshot. Uses the project's accent for
+// a soft radial wash behind its icon; collection tiles get a small "explore"
+// affordance so they read as "links to more".
+const ProjectPoster = ({ project }: { project: Project }) => {
+  const accent = project.accent ?? "#6366f1";
+  return (
+    <div
+      className="absolute inset-0"
+      style={{
+        backgroundImage: `radial-gradient(120% 120% at 25% 12%, ${accent}33 0%, transparent 55%), linear-gradient(150deg, #0b1220 0%, #020617 100%)`,
+      }}
+    >
+      {project.kind === "collection" && (
+        <span
+          className="absolute right-3 top-3 z-20 flex items-center gap-1 rounded-full border border-white/10 bg-black/30 px-2.5 py-1 text-[10px] font-medium text-white/80 backdrop-blur-sm"
+          style={{ color: accent }}
+        >
+          {project.count ? `${project.count} projects` : "Explore"}
+          <ArrowUpRight className="h-3 w-3" />
+        </span>
+      )}
+      <div className="flex h-full items-center justify-center pb-8">
+        <span
+          className="[&>svg]:h-14 [&>svg]:w-14 drop-shadow-[0_6px_20px_rgba(0,0,0,0.45)]"
+          style={{ color: accent }}
+        >
+          {project.icon}
+        </span>
+      </div>
     </div>
   );
 };
